@@ -8,6 +8,7 @@
 # - Values can be any type
 # - Preserves insertion order (Python 3.7+)
 # - Backed by open-addressed hash table in CPython
+# - Allows fast updates, lookups, and deletions
 
 # 🔁 ACCESS PATTERN: Key-based lookup → O(1) average
 # ❗ Worst-case for insert/delete/search → O(n) (hash collisions)
@@ -29,6 +30,9 @@ d.clear()                        # remove all entries
 
 # check length
 print(len(d))
+
+# set a default value when key might be missing
+d['score'] = d.get('score', 0) + 1  # safe increment pattern
 
 # ------------------------
 # 🔁 LOOPING
@@ -134,6 +138,18 @@ from collections import defaultdict
 graph = defaultdict(list)
 graph['A'].append('B')  # safe without pre-init
 
+# 6. manual max-2 from dict (no slicing)
+def top_two_keys(d):
+    sorted_items = sorted(d.items(), key=lambda x: x[1], reverse=True)
+    result = []
+    count = 0
+    for k, v in sorted_items:
+        if count == 2:
+            break
+        result.append(k)
+        count += 1
+    return result
+
 # ------------------------
 # 🧰 PYTHON-SPECIFIC TOOLS
 # ------------------------
@@ -174,14 +190,17 @@ print(nested['user']['name'])
 # for k in d: del d[k] → ❌ RuntimeError
 # for k in list(d): del d[k] → ✅
 
-# multiple keys map to same value (not invertible unless unique)
-# reversing dict only works if values are unique
-
 # reference aliasing
 ref = {}
 alias = ref
 alias['x'] = 5
 print(ref['x'])                  # 5
+
+# dicts don’t auto-initialize
+# d['x'] += 1 → ❌ KeyError unless pre-initialized
+# use d.get('x', 0) + 1 or defaultdict
+
+# reversing dict only works if values are unique
 
 # ------------------------
 # 🧵 WHEN TO USE DICTS
@@ -192,6 +211,7 @@ print(ref['x'])                  # 5
 # - Map relationships (ID → value)
 # - Track state or seen items
 # - Represent graphs, adjacency, index maps
+# - Cache/memoize computed results
 
 # ------------------------
 # ⏱ TIME COMPLEXITY
